@@ -33,33 +33,33 @@ View the planned frontend design here - [figma design](https://www.figma.com/des
 
 1. Ease of Use
 
-- Intuitive multi-step input. `Learning Plan` > `Segments` > `Tasks`. Need clean UI for `Segment` and `Task` nesting
-- Ease of editing plan when falling behind.
-- Flexible enough to add/delete/move segments
-- Search and Navigation for existing/public plans
+    - Intuitive multi-step input. `Learning Plan` > `Segments` > `Tasks`. Need clean UI for `Segment` and `Task` nesting
+    - Ease of editing plan when falling behind.
+    - Flexible enough to add/delete/move segments
+    - Search and Navigation for existing/public plans
 
 2. Responsive Design
 
-- 12-8-4 column system grid system in responsive web design.
-- consistent gutter and column width sizes throughout layout for consistent design
-- Wireframing Process:
-  <ol type="a">
-  <li> What are the main screens and what type of content do you want to include in each? </li>
-  <li>Brainstorm - wireframe/sketch ideas for a screen on paper.</li>
-  <li>Identify components/ideas that pop out/might work well and why.</li>
-  <li>Re-arrange and make a composite if necessary. Repeat for all different screens</li>
-  </ol>
+    - 12-8-4 column system grid system in responsive web design.
+    - consistent gutter and column width sizes throughout layout for consistent design
+    - Wireframing Process:
+      <ol type="a">
+      <li> What are the main screens and what type of content do you want to include in each? </li>
+      <li>Brainstorm - wireframe/sketch ideas for a screen on paper.</li>
+      <li>Identify components/ideas that pop out/might work well and why.</li>
+      <li>Re-arrange and make a composite if necessary. Repeat for all different screens</li>
+      </ol>
 
-3. Current tools - work on differentiation
+3. Differentiation From Current Tools
 
-- Notion. Couldn't just use a Notion template? Caveat: Structure and Progress tracking
-- Trello. Task based, kanban style project management. Caveat:
-- Udemy/Coursera
-- Obsidian/Roam
-
-Possible Differentiators from current tools:
-
-- Forkable public learning plans
-- Rich resource Linking to `LearningPlan`/`Segment`/`Task`
-- Learning pacing and reminders. Similar to a LMS platform
-- AI powered planning/content search
+    - Notion. Couldn't just use a Notion template? Caveat: Structure and Progress tracking
+    - Trello. Task based, kanban style project management. Caveat:
+    - Udemy/Coursera
+    - Obsidian/Roam
+  
+    Possible Differentiators from current tools:
+    
+    - Forkable public learning plans
+    - Rich resource Linking to `LearningPlan`/`Segment`/`Task`
+    - Learning pacing and reminders. Similar to a LMS platform
+    - AI powered planning/content search
