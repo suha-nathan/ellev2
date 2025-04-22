@@ -12,9 +12,8 @@ const LearningPlanSchema = new mongoose.Schema(
     objectives: [{ type: String }],
     tags: [{ type: String }],
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
+      name: { type: String, required: true },
+      icon: { type: String },
     },
     segments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Segment" }],
     resources: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resource" }],
@@ -23,6 +22,25 @@ const LearningPlanSchema = new mongoose.Schema(
     end: { type: Date },
   },
   { timestamps: true }
+);
+
+LearningPlanSchema.index(
+  {
+    title: "text",
+    description: "text",
+    objectives: "text",
+    tags: "text",
+  },
+  {
+    weights: {
+      title: 5,
+      "category.name": 4,
+      tags: 3,
+      objectives: 2,
+      description: 1,
+    },
+    name: "TextSearchIndex",
+  }
 );
 
 export const LearningPlan =

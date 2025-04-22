@@ -10,9 +10,20 @@ const connectDB = async () => {
   }
 };
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await connectDB();
-  const plans = await LearningPlan.find();
+  const { searchParams } = new URL(req.url);
+  const query = searchParams.get("q");
+  if (!query) {
+    const plans = await LearningPlan.find().populate("category");
+    return NextResponse.json(plans);
+  }
+
+  const plans = await LearningPlan.find(
+    { $text: { $search: query } },
+    { score: { $meta: "textScore" } }
+  ).sort({ score: { $meta: "textScore" }, updatedAt: -1 });
+
   return NextResponse.json(plans);
 }
 

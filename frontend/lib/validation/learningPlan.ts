@@ -6,7 +6,10 @@ export const learningPlanSchema = z.object({
   owner: z.string().min(1), // will be validated as a Mongo ObjectId
   objectives: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  category: z.string().min(1), // category _id from Category model
+  category: z.object({
+    name: z.string().min(1),
+    icon: z.string().optional(),
+  }),
   segments: z.array(z.string()).optional(),
   resources: z.array(z.string()).optional(),
   isPublic: z.boolean(),
