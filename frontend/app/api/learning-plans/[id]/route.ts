@@ -64,3 +64,25 @@ export async function PUT(
     return NextResponse.json({ error: "Unknown error" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  await connectDB();
+
+  try {
+    const deleted = await LearningPlan.findByIdAndDelete(params.id);
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+  }
+}

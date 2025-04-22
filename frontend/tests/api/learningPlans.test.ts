@@ -1,4 +1,9 @@
-import { POST, GET, PUT } from "@/app/api/learning-plans/route";
+import { POST, GET } from "@/app/api/learning-plans/route";
+import {
+  PUT,
+  DELETE,
+  GET as GET_ONE,
+} from "@/app/api/learning-plans/[id]/route";
 import { seedLearningPlans } from "../data/learningPlans";
 import { LearningPlan } from "@/lib/models/learningPlan";
 import { learningPlanSchema } from "@/lib/validation/learningPlan";
@@ -105,6 +110,43 @@ describe("GET /api/learning-plans", () => {
   });
 });
 
+describe("GET /api/learning-plans/:id", () => {
+  let planId: string;
+
+  beforeEach(async () => {
+    const inserted = await LearningPlan.insertMany(seedLearningPlans);
+    planId = inserted[3]._id.toString(); // use a real ObjectId
+  });
+
+  it("returns a plan by valid ID", async () => {
+    const req = new NextRequest(
+      `http://localhost/api/learning-plans/${planId}`
+    );
+    const res = await GET_ONE(req, { params: { id: planId } });
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json._id).toBe(planId);
+  });
+
+  it("returns 404 for non-existent ID", async () => {
+    const fakeId = "507f1f77bcf86cd799439011";
+    const req = new NextRequest(
+      `http://localhost/api/learning-plans/${fakeId}`
+    );
+    const res = await GET_ONE(req, { params: { id: fakeId } });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 400 for invalid ID format", async () => {
+    const req = new NextRequest(`http://localhost/api/learning-plans/invalid`);
+    const res = await GET_ONE(req, { params: { id: "invalid" } });
+
+    expect(res.status).toBe(400);
+  });
+});
+
 describe("PUT /api/learning-plans/:id", () => {
   let planId: string;
 
@@ -147,6 +189,47 @@ describe("PUT /api/learning-plans/:id", () => {
   it("returns 400 if the ID is invalid", async () => {
     const req = buildRequest(seedLearningPlans[0], "PUT");
     const res = await PUT(req, { params: { id: "invalid" } });
+
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("DELETE /api/learning-plans/:id", () => {
+  let planId: string;
+
+  beforeEach(async () => {
+    const inserted = await LearningPlan.insertMany(seedLearningPlans);
+    planId = inserted[2]._id.toString();
+  });
+
+  it("deletes a learning plan by ID", async () => {
+    const req = new NextRequest(
+      `http://localhost/api/learning-plans/${planId}`
+    );
+    const res = await DELETE(req, { params: { id: planId } });
+
+    expect(res.status).toBe(200);
+
+    const json = await res.json();
+    expect(json.success).toBe(true);
+
+    const plan = await LearningPlan.findById(planId);
+    expect(plan).toBeNull();
+  });
+
+  it("returns 404 if the plan does not exist", async () => {
+    const fakeId = "507f1f77bcf86cd799439011";
+    const req = new NextRequest(
+      `http://localhost/api/learning-plans/${fakeId}`
+    );
+
+    const res = await DELETE(req, { params: { id: fakeId } });
+    expect(res.status).toBe(404);
+  });
+
+  it("returns 400 if the ID is invalid", async () => {
+    const req = new NextRequest("http://localhost/api/learning-plans/invalid");
+    const res = await DELETE(req, { params: { id: "invalid" } });
 
     expect(res.status).toBe(400);
   });
