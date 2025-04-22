@@ -5,6 +5,7 @@ import { learningPlanSchema } from "@/lib/validation/learningPlan";
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 0) {
+    //connect to mongoose if not already connected.
     await mongoose.connect(process.env.MONGODB_URI as string);
   }
 };
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const newPlan = await LearningPlan.create(body);
+    const newPlan = await LearningPlan.create(parsed.data);
     return NextResponse.json(newPlan, { status: 201 });
   } catch (error) {
     if (error instanceof Error) {
