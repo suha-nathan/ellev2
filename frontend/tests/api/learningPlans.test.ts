@@ -3,10 +3,16 @@ import {
   PUT,
   DELETE,
   GET as GET_ONE,
+  DELETE as DELETE_PLAN,
 } from "@/app/api/learning-plans/[id]/route";
-import { seedLearningPlans } from "../data/learningPlans";
+
 import { LearningPlan } from "@/lib/models/learningPlan";
+import Segment from "@/lib/models/segment";
+import Task from "@/lib/models/task";
+import { seedLearningPlans } from "../data/learningPlans";
+import { seedTasks } from "../data/tasks";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
+
 import { NextRequest } from "next/server";
 import { Readable } from "stream";
 import { z } from "zod";
@@ -230,5 +236,36 @@ describe("DELETE /api/learning-plans/:id", () => {
     const res = await DELETE(req, { params: { id: "invalid" } });
 
     expect(res.status).toBe(400);
+  });
+});
+
+describe("Cascade delete tasks via learning plan → segment → task", () => {
+  let learningPlanId: string;
+
+  beforeEach(async () => {
+    const { learningPlans } = await seedTasks();
+    learningPlanId = learningPlans[1]._id.toString();
+  });
+
+  it("deletes all segments and tasks associated with a learning plan", async () => {
+    const segmentsBefore = await Segment.find({ learningPlanId });
+    expect(segmentsBefore.length).toBeGreaterThan(0);
+
+    const segmentIds = segmentsBefore.map((s) => s._id.toString());
+    const tasksBefore = await Task.find({ segmentId: { $in: segmentIds } });
+    expect(tasksBefore.length).toBeGreaterThan(0);
+
+    const req = new NextRequest(
+      `http://localhost/api/learning-plans/${learningPlanId}`
+    );
+    const res = await DELETE_PLAN(req, { params: { id: learningPlanId } });
+
+    expect(res.status).toBe(200);
+
+    const segmentsAfter = await Segment.find({ learningPlanId });
+    const tasksAfter = await Task.find({ segmentId: { $in: segmentIds } });
+
+    expect(segmentsAfter).toHaveLength(0);
+    expect(tasksAfter).toHaveLength(0);
   });
 });

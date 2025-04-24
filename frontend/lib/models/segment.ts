@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Task from "@/lib/models/task";
 
 const SegmentSchema = new mongoose.Schema(
   {
@@ -15,6 +16,12 @@ const SegmentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+SegmentSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await Task.deleteMany({ segmentId: doc._id });
+  }
+});
 
 export default mongoose.models.Segment ||
   mongoose.model("Segment", SegmentSchema);

@@ -46,7 +46,10 @@ LearningPlanSchema.index(
 // Cascade delete segments on plan deletion
 LearningPlanSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
-    await Segment.deleteMany({ learningPlanId: doc._id });
+    const segments = await Segment.find({ learningPlanId: doc._id });
+    for (const segment of segments) {
+      await Segment.findOneAndDelete({ _id: segment._id });
+    }
   }
 });
 
