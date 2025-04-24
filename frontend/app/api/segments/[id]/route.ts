@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { LearningPlan } from "@/lib/models/learningPlan";
-import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
+import Segment from "@/lib/models/segment";
+import { segmentSchema } from "@/lib/validation/segmentSchema";
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 0) {
@@ -9,6 +9,7 @@ const connectDB = async () => {
   }
 };
 
+// GET /api/segments/:id
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -16,27 +17,24 @@ export async function GET(
   await connectDB();
 
   try {
-    const plan = await LearningPlan.findById(params.id);
-    if (!plan) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const segment = await Segment.findById(params.id);
+    if (!segment) {
+      return NextResponse.json({ error: "Segment not found" }, { status: 404 });
     }
-    return NextResponse.json(plan);
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-    return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+    return NextResponse.json(segment);
+  } catch {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 }
 
+// PUT /api/segments/:id
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   await connectDB();
-
   const body = await req.json();
-  const parsed = learningPlanSchema.safeParse(body);
+  const parsed = segmentSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -46,16 +44,13 @@ export async function PUT(
   }
 
   try {
-    const updated = await LearningPlan.findByIdAndUpdate(
-      params.id,
-      parsed.data,
-      { new: true, runValidators: true }
-    );
-
+    const updated = await Segment.findByIdAndUpdate(params.id, parsed.data, {
+      new: true,
+      runValidators: true,
+    });
     if (!updated) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Segment not found" }, { status: 404 });
     }
-
     return NextResponse.json(updated);
   } catch (error) {
     if (error instanceof Error) {
@@ -65,6 +60,7 @@ export async function PUT(
   }
 }
 
+// DELETE /api/segments/:id
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -72,17 +68,12 @@ export async function DELETE(
   await connectDB();
 
   try {
-    const deleted = await LearningPlan.findByIdAndDelete(params.id);
-
+    const deleted = await Segment.findByIdAndDelete(params.id);
     if (!deleted) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Segment not found" }, { status: 404 });
     }
-
     return NextResponse.json({ success: true });
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-    return NextResponse.json({ error: "Unknown error" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
   }
 }

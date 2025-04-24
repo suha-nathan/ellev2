@@ -6,7 +6,7 @@ import {
 } from "@/app/api/learning-plans/[id]/route";
 import { seedLearningPlans } from "../data/learningPlans";
 import { LearningPlan } from "@/lib/models/learningPlan";
-import { learningPlanSchema } from "@/lib/validation/learningPlan";
+import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 import { NextRequest } from "next/server";
 import { Readable } from "stream";
 import { z } from "zod";

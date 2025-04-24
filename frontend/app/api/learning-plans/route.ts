@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { LearningPlan } from "@/lib/models/learningPlan";
-import { learningPlanSchema } from "@/lib/validation/learningPlan";
+import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 0) {
