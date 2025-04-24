@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get("q");
   if (!query) {
-    const plans = await LearningPlan.find().populate("category");
+    const plans = await LearningPlan.find();
     return NextResponse.json(plans);
   }
 

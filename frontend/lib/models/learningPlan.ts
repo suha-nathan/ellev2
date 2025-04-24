@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Segment from "./segment";
 
 const LearningPlanSchema = new mongoose.Schema(
   {
@@ -15,7 +16,6 @@ const LearningPlanSchema = new mongoose.Schema(
       name: { type: String, required: true },
       icon: { type: String },
     },
-    segments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Segment" }],
     resources: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resource" }],
     isPublic: { type: Boolean, default: false },
     start: { type: Date },
@@ -42,6 +42,13 @@ LearningPlanSchema.index(
     name: "TextSearchIndex",
   }
 );
+
+// Cascade delete segments on plan deletion
+LearningPlanSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await Segment.deleteMany({ learningPlanId: doc._id });
+  }
+});
 
 export const LearningPlan =
   mongoose.models.LearningPlan ||

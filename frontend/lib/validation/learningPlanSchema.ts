@@ -10,7 +10,6 @@ export const learningPlanSchema = z.object({
     name: z.string().min(1),
     icon: z.string().optional(),
   }),
-  segments: z.array(z.string()).optional(),
   resources: z.array(z.string()).optional(),
   isPublic: z.boolean(),
   start: z.string().optional(), // ISO date strings
