@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
-import type { Session, User } from "next-auth";
+import type { AuthOptions, Session, User } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongoClient";
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     GoogleProvider({
@@ -12,9 +12,7 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  session: {
-    strategy: "database",
-  },
+  session: { strategy: "database" },
   callbacks: {
     async session({ session, user }: { session: Session; user: User }) {
       if (session.user) {
@@ -24,6 +22,7 @@ const handler = NextAuth({
       return session;
     },
   },
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

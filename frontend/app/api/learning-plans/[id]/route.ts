@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { LearningPlan } from "@/lib/models/learningPlan";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 
@@ -15,11 +17,21 @@ export async function GET(
 ) {
   await connectDB();
 
+  const session = await getServerSession(authOptions);
+
   try {
     const plan = await LearningPlan.findById(params.id);
+
+    //plan not found
     if (!plan) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
+
+    //plan is private, and session user is not the plan owner
+    if (!plan.isPublic && session?.user.id !== plan.owner.toString()) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     return NextResponse.json(plan);
   } catch (error) {
     if (error instanceof Error) {
@@ -35,9 +47,28 @@ export async function PUT(
 ) {
   await connectDB();
 
+  //require user authentication
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
+  //verify plan ownership
+  const plan = await LearningPlan.findById(params.id);
+  if (!plan) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  if (plan.owner.toString() !== session.user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await req.json();
   const parsed = learningPlanSchema.safeParse(body);
 
+  //validate form data
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Validation failed", issues: parsed.error.flatten() },
@@ -71,6 +102,25 @@ export async function DELETE(
 ) {
   await connectDB();
 
+  //ensure user authentication
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
+  //verify plan ownership
+  const plan = await LearningPlan.findById(params.id);
+  if (!plan) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  if (plan.owner.toString() !== session.user.id) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  //proceed with deletion
   try {
     const deleted = await LearningPlan.findByIdAndDelete(params.id);
 

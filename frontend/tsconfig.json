@@ -14,7 +14,7 @@
     "jsx": "preserve",
     "incremental": true,
     "baseUrl": ".",
-    "types": ["next-auth"],
+    "types": ["next-auth", "jest", "node"],
     "plugins": [ 
       {
         "name": "next"
@@ -24,6 +24,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types", "app", "lib"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types","tests", "app", "lib"],
   "exclude": ["node_modules"]
 }
