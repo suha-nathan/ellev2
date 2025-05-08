@@ -1,4 +1,4 @@
-import type { AuthOptions, Session, User } from "next-auth";
+import type { AuthOptions, Session, ExtendedToken } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongoClient";
@@ -12,12 +12,25 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  session: { strategy: "database" },
+  session: { strategy: "jwt" },
   callbacks: {
-    async session({ session, user }: { session: Session; user: User }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role ?? "user";
+      }
+      return token;
+    },
+    async session({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: ExtendedToken;
+    }) {
       if (session.user) {
-        session.user.id = user.id;
-        session.user.role = user.role;
+        session.user.id = token.id ?? "";
+        session.user.role = token.role ?? "user";
       }
       return session;
     },
