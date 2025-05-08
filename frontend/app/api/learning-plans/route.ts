@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+import connectDB from "@/lib/mongoose";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth/authOptions";
 import { LearningPlan } from "@/lib/models/learningPlan";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
-
-const connectDB = async () => {
-  if (mongoose.connection.readyState === 0) {
-    //connect to mongoose if not already connected.
-    await mongoose.connect(process.env.MONGODB_URI as string);
-  }
-};
 
 export async function GET(req: NextRequest) {
   await connectDB();
@@ -34,7 +27,7 @@ export async function GET(req: NextRequest) {
   }
 
   const plans = await LearningPlan.find(baseFilter);
-  return NextResponse.json(plans);
+  return NextResponse.json({ plans: plans });
 }
 
 export async function POST(req: NextRequest) {

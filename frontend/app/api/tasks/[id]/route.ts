@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+import connectDB from "@/lib/mongoose";
 import Task from "@/lib/models/task";
 import Segment from "@/lib/models/segment";
 import { taskSchema } from "@/lib/validation/taskSchema";
-
-const connectDB = async () => {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-  }
-};
 
 // GET /api/tasks/:id
 export async function GET(

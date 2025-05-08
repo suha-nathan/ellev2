@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import mongoose from "mongoose";
+import connectDB from "@/lib/mongoose";
 import Segment from "@/lib/models/segment";
 import { LearningPlan } from "@/lib/models/learningPlan";
 import { segmentSchema } from "@/lib/validation/segmentSchema";
-
-const connectDB = async () => {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-  }
-};
 
 export async function POST(req: NextRequest) {
   await connectDB();
