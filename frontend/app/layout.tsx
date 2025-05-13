@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} font-sans antialiased`}>
+      <body className={` antialiased`}>
         <Providers>
           <header className="w-full border-b shadow-sm">
             <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
