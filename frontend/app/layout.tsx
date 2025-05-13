@@ -28,6 +28,7 @@ export default function RootLayout({
           <header className="w-full border-b shadow-sm">
             <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
               <h1 className="text-xl font-semibold">📚 Elle</h1>
+
               <nav className="space-x-4 text-sm sm:text-base">
                 <Link href="/" className="hover:underline">
                   Home

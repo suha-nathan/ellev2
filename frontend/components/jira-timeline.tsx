@@ -1,29 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { addDays, addMonths, addWeeks, format, startOfMonth, startOfWeek } from "date-fns"
+import { useState } from "react";
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  format,
+  startOfMonth,
+  startOfWeek,
+} from "date-fns";
 
-import { TimelineHeader } from "./timeline-header"
-import { TimelineView } from "./timeline-view"
+import { TimelineHeader } from "./timeline-header";
+import { TimelineView } from "./timeline-view";
 
-export type TimelinePeriod = "days" | "weeks" | "months"
+export type TimelinePeriod = "days" | "weeks" | "months";
 
 export type TimelineItem = {
-  id: string
-  title: string
-  description?: string
-  start: Date
-  end: Date
-  color?: string
-  status: "todo" | "in-progress" | "review" | "done"
-  assignee?: string
-}
+  id: string;
+  title: string;
+  description?: string;
+  start: Date;
+  end: Date;
+  color?: string;
+  status: "todo" | "in-progress" | "review" | "done";
+  assignee?: string;
+};
 
 export type Swimlane = {
-  id: string
-  title: string
-  items: TimelineItem[]
-}
+  id: string;
+  title: string;
+  items: TimelineItem[];
+};
 
 // Sample data
 const sampleData: Swimlane[] = [
@@ -132,69 +139,78 @@ const sampleData: Swimlane[] = [
       },
     ],
   },
-]
+];
 
 export function JiraTimeline() {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date())
-  const [period, setPeriod] = useState<TimelinePeriod>("weeks")
-  const [swimlanes] = useState<Swimlane[]>(sampleData)
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [period, setPeriod] = useState<TimelinePeriod>("weeks");
+  const [swimlanes] = useState<Swimlane[]>(sampleData);
 
   const getStartDate = () => {
     switch (period) {
       case "days":
-        return currentDate
+        return currentDate;
       case "weeks":
-        return startOfWeek(currentDate)
+        return startOfWeek(currentDate);
       case "months":
-        return startOfMonth(currentDate)
+        return startOfMonth(currentDate);
     }
-  }
+  };
 
   const handleNext = () => {
     switch (period) {
       case "days":
-        setCurrentDate(addDays(currentDate, 7))
-        break
+        setCurrentDate(addDays(currentDate, 7));
+        break;
       case "weeks":
-        setCurrentDate(addWeeks(currentDate, 4))
-        break
+        setCurrentDate(addWeeks(currentDate, 4));
+        break;
       case "months":
-        setCurrentDate(addMonths(currentDate, 3))
-        break
+        setCurrentDate(addMonths(currentDate, 3));
+        break;
     }
-  }
+  };
 
   const handlePrevious = () => {
     switch (period) {
       case "days":
-        setCurrentDate(addDays(currentDate, -7))
-        break
+        setCurrentDate(addDays(currentDate, -7));
+        break;
       case "weeks":
-        setCurrentDate(addWeeks(currentDate, -4))
-        break
+        setCurrentDate(addWeeks(currentDate, -1));
+        break;
       case "months":
-        setCurrentDate(addMonths(currentDate, -3))
-        break
+        setCurrentDate(addMonths(currentDate, -3));
+        break;
     }
-  }
+  };
 
   const handleToday = () => {
-    setCurrentDate(new Date())
-  }
+    setCurrentDate(new Date());
+  };
 
   const getHeaderTitle = () => {
     switch (period) {
       case "days":
-        const dayEnd = addDays(currentDate, 13)
-        return `${format(currentDate, "MMM d")} - ${format(dayEnd, "MMM d, yyyy")}`
+        const dayEnd = addDays(currentDate, 13);
+        return `${format(currentDate, "MMM d")} - ${format(
+          dayEnd,
+          "MMM d, yyyy"
+        )}`;
       case "weeks":
-        const weekEnd = addWeeks(currentDate, 7)
-        return `${format(currentDate, "MMM d")} - ${format(weekEnd, "MMM d, yyyy")}`
+        const weekEnd = addWeeks(currentDate, 7);
+        return `${format(currentDate, "MMM d")} - ${format(
+          weekEnd,
+          "MMM d, yyyy"
+        )}`;
       case "months":
-        const monthEnd = addMonths(currentDate, 2)
-        return `${format(currentDate, "MMM yyyy")} - ${format(monthEnd, "MMM yyyy")}`
+        const monthEnd = addMonths(currentDate, 2);
+        return `${format(currentDate, "MMM yyyy")} - ${format(
+          monthEnd,
+          "MMM yyyy"
+        )}`;
     }
-  }
+  };
 
   return (
     <div className="border rounded-lg shadow-sm bg-white overflow-hidden">
@@ -206,7 +222,11 @@ export function JiraTimeline() {
         onPrevious={handlePrevious}
         onToday={handleToday}
       />
-      <TimelineView period={period} startDate={getStartDate()} swimlanes={swimlanes} />
+      <TimelineView
+        period={period}
+        startDate={getStartDate()}
+        swimlanes={swimlanes}
+      />
     </div>
-  )
+  );
 }
