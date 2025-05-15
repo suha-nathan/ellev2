@@ -25,7 +25,7 @@ import {
 import { DateRangePicker } from "@/components/daterange-picker";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, CalendarIcon, PlusIcon, X } from "lucide-react";
+import { CalendarIcon, PlusIcon, Pencil, Trash2, X } from "lucide-react";
 import { Toaster, toast } from "sonner";
 
 import { format } from "date-fns";
@@ -35,9 +35,15 @@ import { segmentSchema } from "@/lib/validation/segmentSchema";
 import { taskSchema } from "@/lib/validation/taskSchema";
 
 export default function CreateLearningPlan() {
-  const [segments, setSegments] = useState([
-    { title: "", description: "", start: "", end: "", tasks: [""] },
-  ]);
+  const [segments, setSegments] = useState<any[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedSegment, setSelectedSegment] = useState<any>({
+    title: "",
+    description: "",
+    start: undefined,
+    end: undefined,
+  });
+
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -69,12 +75,11 @@ export default function CreateLearningPlan() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const updateSegment = (index: number, key: string, value: string) => {
+  const addTask = (segIndex: number) => {
     const copy = [...segments];
-    (copy[index] as any)[key] = value;
+    copy[segIndex].tasks.push("");
     setSegments(copy);
   };
-
   const updateTask = (segIndex: number, taskIndex: number, value: string) => {
     const copy = [...segments];
     copy[segIndex].tasks[taskIndex] = value;
@@ -87,25 +92,60 @@ export default function CreateLearningPlan() {
     setSegments(copy);
   };
 
-  const addSegment = () => {
-    setSegments([
-      ...segments,
-      { title: "", description: "", start: "", end: "", tasks: [""] },
-    ]);
+  // const addSegment = () => {
+  //   setSegments([
+  //     ...segments,
+  //     { title: "", description: "", start: "", end: "", tasks: [""] },
+  //   ]);
+  // };
+  // const updateSegment = (index: number, key: string, value: string) => {
+  //   const copy = [...segments];
+  //   (copy[index] as any)[key] = value;
+  //   setSegments(copy);
+  // };
+
+  // const removeSegment = (segIndex: number) => {
+  //   const copy = [...segments];
+  //   copy.splice(segIndex, 1);
+  //   setSegments(copy);
+  // };
+
+  const handleSegmentSave = () => {
+    const updatedSegments = [...segments];
+    if (selectedIndex !== null) {
+      updatedSegments[selectedIndex] = selectedSegment;
+    } else {
+      updatedSegments.push(selectedSegment);
+    }
+    setSegments(updatedSegments);
+    setSelectedSegment({
+      title: "",
+      description: "",
+      start: undefined,
+      end: undefined,
+    });
+    setSelectedIndex(null);
   };
 
-  const removeSegment = (segIndex: number) => {
+  const handleSegmentEdit = (index: number) => {
+    setSelectedIndex(index);
+    setSelectedSegment(segments[index]);
+  };
+
+  const handleSegmentDelete = (index: number) => {
     const copy = [...segments];
-    copy.splice(segIndex, 1);
+    copy.splice(index, 1);
     setSegments(copy);
+    if (selectedIndex === index) {
+      setSelectedIndex(null);
+      setSelectedSegment({
+        title: "",
+        description: "",
+        start: undefined,
+        end: undefined,
+      });
+    }
   };
-
-  const addTask = (segIndex: number) => {
-    const copy = [...segments];
-    copy[segIndex].tasks.push("");
-    setSegments(copy);
-  };
-
   const handleSubmit = async () => {
     // console.log("FORM: ", form);
     // console.log("SEGMENTS: ", segments);
@@ -258,6 +298,7 @@ export default function CreateLearningPlan() {
               end: range?.end,
             }))
           }
+          numMonths={2}
         />
       </div>
 
@@ -272,102 +313,108 @@ export default function CreateLearningPlan() {
         </span>
       </div>
 
-      {/* Segments */}
-      {segments.map((segment, segIndex) => (
-        <Card key={segIndex} className="p-4 space-y-4 relative">
-          <button
-            onClick={() => removeSegment(segIndex)}
-            className="absolute top-2 right-2 text-destructive"
-            title="Remove segment"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-
+      {/* Segments Manager */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Left: Segment List */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Segments</h3>
           <div className="space-y-2">
-            <Label>Segment Title</Label>
-            <Input
-              value={segment.title}
-              onChange={(e) => updateSegment(segIndex, "title", e.target.value)}
-            />
-            {errors?.segments?.[segIndex]?.title && (
-              <p className="text-sm text-red-600">
-                {errors.segments[segIndex].title._errors?.[0]}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Start Date</Label>
-            <Input
-              type="datetime-local"
-              value={segment.start}
-              onChange={(e) => updateSegment(segIndex, "start", e.target.value)}
-            />
-            {errors?.segments?.[segIndex]?.start && (
-              <p className="text-sm text-red-600">
-                {errors.segments[segIndex].start._errors?.[0]}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>End Date</Label>
-            <Input
-              type="datetime-local"
-              value={segment.end}
-              onChange={(e) => updateSegment(segIndex, "end", e.target.value)}
-            />
-            {errors?.segments?.[segIndex]?.end && (
-              <p className="text-sm text-red-600">
-                {errors.segments[segIndex].end._errors?.[0]}
-              </p>
-            )}
-          </div>
-
-          {/* Tasks */}
-          <div className="space-y-2">
-            <Label>Tasks</Label>
-            {segment.tasks.map((task, taskIndex) => (
-              <div key={taskIndex} className="flex items-center gap-2">
-                <Input
-                  value={task}
-                  onChange={(e) =>
-                    updateTask(segIndex, taskIndex, e.target.value)
-                  }
-                  placeholder={`Task ${taskIndex + 1}`}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  type="button"
-                  onClick={() => removeTask(segIndex, taskIndex)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-                {errors?.segments?.[segIndex]?.tasks?.[taskIndex]?.title && (
-                  <p className="text-sm text-red-600">
-                    {
-                      errors.segments[segIndex].tasks[taskIndex].title
-                        ._errors?.[0]
-                    }
+            {segments.map((segment, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between border rounded px-3 py-2"
+              >
+                <div>
+                  <p className="font-semibold text-sm">
+                    {segment.title || "Untitled"}
                   </p>
-                )}
+                  <p className="text-xs text-muted-foreground">
+                    {segment.start
+                      ? format(new Date(segment.start), "MMM d")
+                      : "Start"}{" "}
+                    →{" "}
+                    {segment.end
+                      ? format(new Date(segment.end), "MMM d")
+                      : "End"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleSegmentEdit(i)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleSegmentDelete(i)}
+                  >
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => addTask(segIndex)}
-            >
-              + Add Task
-            </Button>
           </div>
-        </Card>
-      ))}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleSegmentEdit(-1)}
+          >
+            + Add Segment
+          </Button>
+        </div>
 
-      <Button variant="outline" type="button" onClick={addSegment}>
-        + Add Segment
-      </Button>
+        {/* Right: Segment Form */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">
+            {selectedIndex !== null ? "Edit Segment" : "New Segment"}
+          </h3>
+          <div className="space-y-2">
+            <Label>Title</Label>
+            <Input
+              value={selectedSegment.title}
+              onChange={(e) =>
+                setSelectedSegment({
+                  ...selectedSegment,
+                  title: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={selectedSegment.description}
+              onChange={(e) =>
+                setSelectedSegment({
+                  ...selectedSegment,
+                  description: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Date</Label>
+            <DateRangePicker
+              value={{ start: selectedSegment.start, end: selectedSegment.end }}
+              onChange={(range) =>
+                setSelectedSegment((prev) => ({
+                  ...prev,
+                  start: range?.start,
+                  end: range?.end,
+                }))
+              }
+              numMonths={1}
+            />
+          </div>
+
+          <Button type="button" onClick={handleSegmentSave}>
+            Save Segment
+          </Button>
+        </div>
+      </div>
 
       <Button onClick={handleSubmit}>Submit</Button>
       <Toaster richColors />

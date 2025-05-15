@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -15,9 +15,11 @@ import {
 export function DateRangePicker({
   value,
   onChange,
+  numMonths,
 }: {
   value: { start: Date | undefined; end: Date | undefined };
   onChange: (dates: { start: Date | undefined; end: Date | undefined }) => void;
+  numMonths: number;
 }) {
   const [range, setRange] = useState<DateRange | undefined>(
     value.start && value.end
@@ -67,7 +69,7 @@ export function DateRangePicker({
             mode="range"
             selected={range}
             onSelect={handleChange}
-            numberOfMonths={2}
+            numberOfMonths={numMonths}
             initialFocus
           />
         </PopoverContent>
