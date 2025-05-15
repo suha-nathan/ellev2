@@ -7,13 +7,34 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DateRangePicker } from "@/components/daterange-picker";
+import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, CalendarIcon, PlusIcon, X } from "lucide-react";
 import { Toaster, toast } from "sonner";
+
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 import { segmentSchema } from "@/lib/validation/segmentSchema";
 import { taskSchema } from "@/lib/validation/taskSchema";
 
-export default function NewLearningPlanPage() {
+export default function CreateLearningPlan() {
   const [segments, setSegments] = useState([
     { title: "", description: "", start: "", end: "", tasks: [""] },
   ]);
@@ -21,9 +42,28 @@ export default function NewLearningPlanPage() {
     title: "",
     description: "",
     category: "",
+    tags: [] as string[],
+    tagInput: "",
     isPublic: false,
+
+    start: undefined as Date | undefined,
+    end: undefined as Date | undefined,
   });
   const [errors, setErrors] = useState<any>({});
+
+  const handleTagAdd = () => {
+    if (form.tagInput.trim() && !form.tags.includes(form.tagInput.trim())) {
+      setForm({
+        ...form,
+        tags: [...form.tags, form.tagInput.trim()],
+        tagInput: "",
+      });
+    }
+  };
+
+  const handleTagRemove = (tag: string) => {
+    setForm({ ...form, tags: form.tags.filter((t) => t !== tag) });
+  };
 
   const updateForm = (key: string, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -67,6 +107,8 @@ export default function NewLearningPlanPage() {
   };
 
   const handleSubmit = async () => {
+    // console.log("FORM: ", form);
+    // console.log("SEGMENTS: ", segments);
     const segmentErrors: Record<number, any> = {};
 
     for (let i = 0; i < segments.length; i++) {
@@ -93,7 +135,14 @@ export default function NewLearningPlanPage() {
         }
       }
     }
-    const finalPlan = { ...form, category: { name: form.category }, segments };
+    const finalPlan = {
+      ...form,
+      start: form.start?.toISOString(),
+      end: form.end?.toISOString(),
+      category: { name: form.category },
+      segments,
+    };
+    // console.log(finalPlan);
 
     const planValidation = learningPlanSchema
       .omit({ owner: true })
@@ -110,7 +159,7 @@ export default function NewLearningPlanPage() {
     }
 
     setErrors({});
-    console.log("finalplan submitting");
+    // console.log("finalplan submitting");
     const res = await fetch("/api/learning-plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -147,26 +196,80 @@ export default function NewLearningPlanPage() {
           onChange={(e) => updateForm("description", e.target.value)}
         />
       </div>
-
       <div className="space-y-2">
         <Label>Category</Label>
-        <Input
-          value={form.category}
-          onChange={(e) => updateForm("category", e.target.value)}
-        />
-        {errors.category?.name && (
-          <p className="text-sm text-red-600">
-            {errors.category.name._errors?.[0]}
-          </p>
-        )}
+        <Select
+          defaultValue=""
+          onValueChange={(e) => updateForm("category", e)}
+        >
+          <SelectTrigger className="border rounded px-2 py-1">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Category</SelectLabel>
+              <SelectItem value="frontend">Frontend</SelectItem>
+              <SelectItem value="backend">Backend</SelectItem>
+              <SelectItem value="design">Design</SelectItem>
+              <SelectItem value="career">Career</SelectItem>
+              <SelectItem value="pineapple">Pineapple</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label>Tags</Label>
+        <div className="flex gap-2">
+          <Input
+            value={form.tagInput}
+            onChange={(e) => setForm({ ...form, tagInput: e.target.value })}
+            onKeyDown={(e) =>
+              e.key === "Enter" && (e.preventDefault(), handleTagAdd())
+            }
+          />
+          <Button type="button" onClick={handleTagAdd} variant="outline">
+            <PlusIcon className="w-4 h-4 mr-1" /> Add
+          </Button>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {form.tags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
+              {tag}
+              <X
+                className="w-3 h-3 cursor-pointer"
+                onClick={() => handleTagRemove(tag)}
+              />
+            </Badge>
+          ))}
+        </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
+      <div className="space-y-2">
+        <DateRangePicker
+          value={{ start: form.start, end: form.end }}
+          onChange={(range) =>
+            setForm((prev) => ({
+              ...prev,
+              start: range?.start,
+              end: range?.end,
+            }))
+          }
+        />
+      </div>
+
+      <div className="flex items-center gap-4">
+        <Label>Public</Label>
+        <Switch
           checked={form.isPublic}
           onCheckedChange={(checked) => updateForm("isPublic", !!checked)}
         />
-        <Label>Make public</Label>
+        <span className="text-sm text-muted-foreground">
+          {form.isPublic ? "Visible to others" : "Private to you"}
+        </span>
       </div>
 
       {/* Segments */}
