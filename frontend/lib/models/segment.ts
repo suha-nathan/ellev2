@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Task from "@/lib/models/task";
+import { Task } from "@/lib/models/task";
 
 const SegmentSchema = new mongoose.Schema(
   {
@@ -12,7 +12,6 @@ const SegmentSchema = new mongoose.Schema(
       required: true,
       ref: "LearningPlan",
     },
-    tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
   },
   { timestamps: true }
 );
@@ -23,5 +22,5 @@ SegmentSchema.post("findOneAndDelete", async function (doc) {
   }
 });
 
-export default mongoose.models.Segment ||
-  mongoose.model("Segment", SegmentSchema);
+export const Segment =
+  mongoose.models.Segment || mongoose.model("Segment", SegmentSchema);

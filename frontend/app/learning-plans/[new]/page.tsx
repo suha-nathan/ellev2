@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 import { segmentSchema } from "@/lib/validation/segmentSchema";
 import { taskSchema } from "@/lib/validation/taskSchema";
@@ -71,6 +71,10 @@ export default function NewLearningPlanPage() {
 
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i];
+
+      seg.start = seg.start ? new Date(seg.start).toISOString() : "";
+      seg.end = seg.end ? new Date(seg.end).toISOString() : "";
+
       const segValidation = segmentSchema
         .omit({ learningPlanId: true })
         .safeParse(seg);
@@ -89,31 +93,31 @@ export default function NewLearningPlanPage() {
         }
       }
     }
+    const finalPlan = { ...form, category: { name: form.category }, segments };
 
-    const planValidation = learningPlanSchema.omit({ owner: true }).safeParse({
-      ...form,
-      category: { name: form.category },
-      segments,
-    });
+    const planValidation = learningPlanSchema
+      .omit({ owner: true })
+      .safeParse(finalPlan);
 
     if (!planValidation.success || Object.keys(segmentErrors).length > 0) {
       const flatErrors = {
         ...(planValidation.success ? {} : planValidation.error.format()),
         segments: segmentErrors,
       };
+      console.log(flatErrors);
       setErrors(flatErrors);
       return;
     }
 
     setErrors({});
-    const payload = { ...form, segments };
-
+    console.log("finalplan submitting");
     const res = await fetch("/api/learning-plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(finalPlan),
     });
 
+    console.log(res);
     if (res.ok) {
       toast.success("Learning plan created!");
     } else {
@@ -263,6 +267,7 @@ export default function NewLearningPlanPage() {
       </Button>
 
       <Button onClick={handleSubmit}>Submit</Button>
+      <Toaster richColors />
     </div>
   );
 }

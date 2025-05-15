@@ -3,6 +3,8 @@ import connectDB from "@/lib/mongoose";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth/authOptions";
 import { LearningPlan } from "@/lib/models/learningPlan";
+import { Segment } from "@/lib/models/segment";
+import { Task } from "@/lib/models/task";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 
 export async function GET(
@@ -26,7 +28,17 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json(plan);
+    const segments = await Segment.find({ learningPlanId: plan._id }).lean();
+
+    // For each segment, get its tasks
+    const segmentsWithTasks = await Promise.all(
+      segments.map(async (segment) => {
+        const tasks = await Task.find({ segmentId: segment._id }).lean();
+        return { ...segment, tasks };
+      })
+    );
+
+    return NextResponse.json({ ...plan, segments: segmentsWithTasks });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

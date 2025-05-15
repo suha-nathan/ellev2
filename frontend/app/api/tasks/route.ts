@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongoose";
-import Task from "@/lib/models/task";
-import Segment from "@/lib/models/segment";
+import { Task } from "@/lib/models/task";
+import { Segment } from "@/lib/models/segment";
 import { taskSchema } from "@/lib/validation/taskSchema";
 
 export async function POST(req: NextRequest) {

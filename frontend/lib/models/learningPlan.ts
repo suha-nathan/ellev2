@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Segment from "./segment";
+import { Segment } from "./segment";
 
 const LearningPlanSchema = new mongoose.Schema(
   {
