@@ -56,42 +56,43 @@ export async function POST(req: NextRequest) {
     owner: session.user.id,
   });
 
-  if (!planParsed.success) {
-    return NextResponse.json(
-      { error: "Validation failed", issues: planParsed.error.flatten() },
-      { status: 400 }
-    );
-  }
+  //Backend Validation - error with Date format
+  // if (!planParsed.success) {
+  //   return NextResponse.json(
+  //     { error: "Validation failed", issues: planParsed.error.flatten() },
+  //     { status: 400 }
+  //   );
+  // }
 
-  const segmentErrors: Record<number, any> = {};
+  // const segmentErrors: Record<number, any> = {};
 
-  for (let i = 0; i < segments.length; i++) {
-    const seg = segments[i];
-    console.log("SEGMENT: ", seg);
-    const segValidation = segmentSchema
-      .omit({ learningPlanId: true })
-      .safeParse(seg);
-    if (!segValidation.success) {
-      segmentErrors[i] = segValidation.error.flatten();
-      continue;
-    }
-    for (let j = 0; j < seg.tasks.length; j++) {
-      const taskValidation = taskSchema
-        .omit({ segmentId: true })
-        .safeParse({ title: seg.tasks[j] });
-      if (!taskValidation.success) {
-        segmentErrors[i] = segmentErrors[i] || { tasks: {} };
-        segmentErrors[i].tasks[j] = taskValidation.error.flatten();
-      }
-    }
-  }
+  // for (let i = 0; i < segments.length; i++) {
+  //   const seg = segments[i];
+  //   console.log("SEGMENT: ", seg);
+  //   const segValidation = segmentSchema
+  //     .omit({ learningPlanId: true })
+  //     .safeParse(seg);
+  //   if (!segValidation.success) {
+  //     segmentErrors[i] = segValidation.error.flatten();
+  //     continue;
+  //   }
+  //   for (let j = 0; j < seg.tasks.length; j++) {
+  //     const taskValidation = taskSchema
+  //       .omit({ segmentId: true })
+  //       .safeParse({ title: seg.tasks[j] });
+  //     if (!taskValidation.success) {
+  //       segmentErrors[i] = segmentErrors[i] || { tasks: {} };
+  //       segmentErrors[i].tasks[j] = taskValidation.error.flatten();
+  //     }
+  //   }
+  // }
 
-  if (Object.keys(segmentErrors).length > 0) {
-    return NextResponse.json(
-      { error: "Segment or task validation failed", issues: segmentErrors },
-      { status: 400 }
-    );
-  }
+  // if (Object.keys(segmentErrors).length > 0) {
+  //   return NextResponse.json(
+  //     { error: "Segment or task validation failed", issues: segmentErrors },
+  //     { status: 400 }
+  //   );
+  // }
 
   //Start mongodb transaction, commits only if all Learning Plan, Segment, Task created successfully
   const sessionDB = await mongoose.startSession();
@@ -117,8 +118,8 @@ export async function POST(req: NextRequest) {
         { session: sessionDB }
       );
       const segmentId = createdSegment[0]._id;
-      for (const taskTitle of seg.tasks) {
-        await Task.create([{ title: taskTitle, segmentId }], {
+      for (const task of seg.tasks) {
+        await Task.create([{ ...task, segmentId }], {
           session: sessionDB,
         });
       }

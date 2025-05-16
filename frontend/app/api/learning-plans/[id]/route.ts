@@ -38,7 +38,7 @@ export async function GET(
       })
     );
 
-    return NextResponse.json({ ...plan, segments: segmentsWithTasks });
+    return NextResponse.json({ ...plan._doc, segments: segmentsWithTasks });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

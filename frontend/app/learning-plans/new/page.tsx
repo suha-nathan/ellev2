@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,6 @@ import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/daterange-picker";
 import { SegmentManager } from "@/components/segment-manager";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
-import { segmentSchema } from "@/lib/validation/segmentSchema";
-import { taskSchema } from "@/lib/validation/taskSchema";
 
 export default function CreateLearningPlan() {
   const [segments, setSegments] = useState<any[]>([]);
@@ -44,6 +43,8 @@ export default function CreateLearningPlan() {
     from: form.start,
     to: form.end,
   });
+  const router = useRouter();
+
   const handleTagAdd = () => {
     if (form.tagInput.trim() && !form.tags.includes(form.tagInput.trim())) {
       setForm({
@@ -88,7 +89,9 @@ export default function CreateLearningPlan() {
     });
 
     if (res.ok) {
+      const data = await res.json();
       toast.success("Learning plan created!");
+      router.push(`/learning-plans/view/${data.planId}`);
     } else {
       toast.error("Failed to create learning plan");
     }
@@ -171,17 +174,6 @@ export default function CreateLearningPlan() {
       <div className="space-y-2">
         <Label>Date</Label>
         <DateRangePicker range={range} setRange={setRange} numMonths={2} />
-        {/* <DateRangePicker
-          value={{ start: form.start, end: form.end }}
-          onChange={(range) =>
-            setForm((prev) => ({
-              ...prev,
-              start: range?.start,
-              end: range?.end,
-            }))
-          }
-          numMonths={2}
-        /> */}
       </div>
 
       <div className="flex items-center gap-4">
@@ -194,11 +186,7 @@ export default function CreateLearningPlan() {
           {form.isPublic ? "Visible to others" : "Private to you"}
         </span>
       </div>
-      <SegmentManager
-        segments={segments}
-        setSegments={setSegments}
-        errors={errors?.segments}
-      />
+      <SegmentManager segments={segments} setSegments={setSegments} />
       <Button onClick={handleSubmit}>Submit</Button>
       <Toaster richColors />
     </div>
