@@ -12,6 +12,6 @@ export const learningPlanSchema = z.object({
   }),
   resources: z.array(z.string()).optional(),
   isPublic: z.boolean(),
-  start: z.string().optional(), // ISO date strings
-  end: z.string().optional(),
+  start: z.date().optional(),
+  end: z.date().optional(),
 });

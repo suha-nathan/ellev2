@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
 
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i];
+    console.log("SEGMENT: ", seg);
     const segValidation = segmentSchema
       .omit({ learningPlanId: true })
       .safeParse(seg);
