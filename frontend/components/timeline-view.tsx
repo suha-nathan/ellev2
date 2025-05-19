@@ -33,7 +33,7 @@ export function TimelineView({
   startDate,
   swimlanes,
 }: TimelineViewProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Calculate the number of time units to display based on period
   const getTimeUnits = () => {
@@ -51,7 +51,7 @@ export function TimelineView({
       case "months":
         return eachMonthOfInterval({
           start: startOfMonth(startDate),
-          end: addMonths(startOfMonth(startDate), 4), // Show 3 months
+          end: addMonths(startOfMonth(startDate), 2), // Show 3 months
         });
     }
   };
@@ -63,40 +63,48 @@ export function TimelineView({
   const getItemStyle = (start: Date, end: Date) => {
     let startPosition = 0;
     let width = 0;
+    let visibleLength = 1;
 
     switch (period) {
-      case "days":
+      case "days": {
         startPosition = Math.max(0, differenceInCalendarDays(start, startDate));
         width = Math.max(1, differenceInCalendarDays(end, start) + 1);
-        return {
-          left: `${(startPosition / 14) * 100}%`,
-          width: `${(width / 14) * 100}%`,
-        };
-      case "weeks":
+        visibleLength = 14; // Matches 14-day view
+        break;
+      }
+      case "weeks": {
         startPosition = Math.max(
           0,
           differenceInCalendarWeeks(start, startDate)
         );
         width = Math.max(1, differenceInCalendarWeeks(end, start) + 1);
-        return {
-          left: `${(startPosition / 8) * 100}%`,
-          width: `${(width / 8) * 100}%`,
-        };
-      case "months":
+        visibleLength = 8; // Matches 8-week view
+        break;
+      }
+      case "months": {
         startPosition = Math.max(
           0,
           differenceInCalendarMonths(start, startDate)
         );
         width = Math.max(1, differenceInCalendarMonths(end, start) + 1);
-        return {
-          left: `${(startPosition / 3) * 100}%`,
-          width: `${(width / 3) * 100}%`,
-        };
+        visibleLength = 3; // Matches 3-month view
+        break;
+      }
     }
+
+    // Clamp width so items that overflow the visible window don't break layout
+    const maxWidth = visibleLength - startPosition;
+    const clampedWidth = Math.max(0, Math.min(width, maxWidth));
+
+    return {
+      left: `${(startPosition / visibleLength) * 100}%`,
+      width: `${(clampedWidth / visibleLength) * 100}%`,
+    };
   };
 
   return (
-    <div className="overflow-x-auto" ref={scrollContainerRef}>
+    // <div className="overflow-x-auto" ref={scrollContainerRef}>
+    <div className="overflow-x-auto">
       <div className="min-w-[800px]">
         {/* Timeline header */}
         <div className="flex border-b sticky top-0 bg-white z-10">
@@ -120,7 +128,7 @@ export function TimelineView({
                     isCurrentMonth && period === "months" && "bg-blue-50"
                   )}
                 >
-                  {period === "days" && format(unit, "EEE d")}
+                  {period === "days" && format(unit, "EEE d LLL")}
                   {period === "weeks" && format(unit, "MMM d")}
                   {period === "months" && format(unit, "MMM yyyy")}
                 </div>

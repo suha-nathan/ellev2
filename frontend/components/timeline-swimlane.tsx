@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, User } from "lucide-react";
 import { useState } from "react";
+import { differenceInCalendarDays } from "date-fns";
 
 import type { Swimlane, TimelinePeriod } from "./jira-timeline";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,40 @@ export function TimelineSwimlane({
     }
   };
 
+  console.log("time units: ", timeUnits);
+
+  const getItemStyle2 = (start: Date, end: Date) => {
+    let style = {};
+
+    const itemStart = new Date(start);
+    const itemEnd = new Date(end);
+    const viewStart = timeUnits[0];
+    const viewEnd = timeUnits[timeUnits.length - 1];
+
+    if (itemEnd < viewStart || itemStart > viewEnd) {
+      //item out of grid bounds
+      style = { display: "none" };
+    } else {
+      //start of item is out of left bounds
+      //end of item is within, is equal to or out of right bounds
+      const left = Math.max(
+        1,
+        differenceInCalendarDays(itemStart, viewStart) + 1
+      );
+      const right = Math.min(
+        timeUnits.length,
+        differenceInCalendarDays(itemEnd, viewStart) + 2
+      );
+      style = {
+        // display: "grid",
+        "grid-column-start": `${left}`,
+        "grid-column-end": `${right}`,
+      };
+    }
+
+    return style;
+  };
+
   return (
     <div className="border-b">
       {/* Swimlane header */}
@@ -61,9 +96,9 @@ export function TimelineSwimlane({
           style={{ gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)` }}
         >
           {/* Grid lines */}
-          {timeUnits.map((unit, index) => (
+          {/* {timeUnits.map((unit, index) => (
             <div key={index} className="border-r h-full"></div>
-          ))}
+          ))} */}
         </div>
       </div>
 
@@ -71,7 +106,7 @@ export function TimelineSwimlane({
       {expanded && (
         <div>
           {swimlane.items.map((item) => {
-            const style = getItemStyle(item.start, item.end);
+            const style = getItemStyle2(item.start, item.end);
 
             return (
               <div
@@ -94,16 +129,16 @@ export function TimelineSwimlane({
                   }}
                 >
                   {/* Grid lines */}
-                  {timeUnits.map((unit, index) => (
+                  {/* {timeUnits.map((unit, index) => (
                     <div key={index} className="border-r h-full"></div>
-                  ))}
+                  ))} */}
 
                   {/* Timeline item */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div
-                          className="absolute top-1 bottom-1 rounded-md flex items-center px-2 text-white text-xs font-medium cursor-pointer hover:opacity-90"
+                          className="top-1 bottom-1 rounded-md flex items-center px-2 text-white text-xs font-medium cursor-pointer hover:opacity-90"
                           style={{
                             ...style,
                             backgroundColor: item.color || "#60a5fa",
@@ -120,7 +155,7 @@ export function TimelineSwimlane({
                       <TooltipContent>
                         <div className="space-y-1">
                           <div className="font-medium">{item.title}</div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs">
                             {item.start.toLocaleDateString()} -{" "}
                             {item.end.toLocaleDateString()}
                           </div>
