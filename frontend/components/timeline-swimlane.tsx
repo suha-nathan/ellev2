@@ -45,6 +45,7 @@ export function TimelineSwimlane({
   console.log("time units: ", timeUnits);
 
   const getItemStyle2 = (start: Date, end: Date) => {
+    //TODO: return style by period (not just days)
     let style = {};
 
     const itemStart = new Date(start);
@@ -63,13 +64,13 @@ export function TimelineSwimlane({
         differenceInCalendarDays(itemStart, viewStart) + 1
       );
       const right = Math.min(
-        timeUnits.length,
+        timeUnits.length + 1,
         differenceInCalendarDays(itemEnd, viewStart) + 2
       );
       style = {
         // display: "grid",
-        "grid-column-start": `${left}`,
-        "grid-column-end": `${right}`,
+        gridColumnStart: `${left}`,
+        gridColumnEnd: `${right}`,
       };
     }
 
@@ -93,7 +94,9 @@ export function TimelineSwimlane({
         </div>
         <div
           className="flex-1 grid"
-          style={{ gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)` }}
+          style={{
+            gridTemplateColumns: `repeat(${timeUnits.length}, minmax(60px, 1fr))`,
+          }}
         >
           {/* Grid lines */}
           {/* {timeUnits.map((unit, index) => (
@@ -125,7 +128,7 @@ export function TimelineSwimlane({
                 <div
                   className="flex-1 grid relative"
                   style={{
-                    gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)`,
+                    gridTemplateColumns: `repeat(${timeUnits.length}, minmax(60px, 1fr))`,
                   }}
                 >
                   {/* Grid lines */}

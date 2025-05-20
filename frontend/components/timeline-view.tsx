@@ -113,7 +113,9 @@ export function TimelineView({
           </div>
           <div
             className="flex-1 grid"
-            style={{ gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)` }}
+            style={{
+              gridTemplateColumns: `repeat(${timeUnits.length}, minmax(60px, 1fr))`,
+            }}
           >
             {timeUnits.map((unit) => {
               const isCurrentDay = isSameDay(unit, today);
