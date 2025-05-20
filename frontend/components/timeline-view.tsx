@@ -13,6 +13,7 @@ import {
   isSameMonth,
   startOfMonth,
   startOfWeek,
+  isSameWeek,
 } from "date-fns";
 
 import { TimelineSwimlane } from "./timeline-swimlane";
@@ -38,12 +39,12 @@ export function TimelineView({
       case "days":
         return eachDayOfInterval({
           start: startDate,
-          end: addDays(startDate, 13), // Show 14 days
+          end: addDays(startDate, 7), // Show 8 days
         });
       case "weeks":
         return eachWeekOfInterval({
           start: startOfWeek(startDate),
-          end: addWeeks(startOfWeek(startDate), 7), // Show 8 weeks
+          end: addWeeks(startOfWeek(startDate), 5), // Show 6 weeks
         });
       case "months":
         return eachMonthOfInterval({
@@ -75,6 +76,7 @@ export function TimelineView({
             >
               {timeUnits.map((unit) => {
                 const isCurrentDay = isSameDay(unit, today);
+                const isCurrentWeek = isSameWeek(unit, today);
                 const isCurrentMonth = isSameMonth(unit, today);
 
                 return (
@@ -83,6 +85,7 @@ export function TimelineView({
                     className={cn(
                       "text-center py-3 border-r text-sm font-medium",
                       isCurrentDay && period === "days" && "bg-blue-50",
+                      isCurrentWeek && period === "weeks" && "bg-blue-50",
                       isCurrentMonth && period === "months" && "bg-blue-50"
                     )}
                   >

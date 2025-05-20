@@ -160,13 +160,13 @@ export function JiraTimeline() {
   const handleNext = () => {
     switch (period) {
       case "days":
-        setCurrentDate(addDays(currentDate, 7));
+        setCurrentDate(addDays(currentDate, 3));
         break;
       case "weeks":
-        setCurrentDate(addWeeks(currentDate, 4));
+        setCurrentDate(addWeeks(currentDate, 1));
         break;
       case "months":
-        setCurrentDate(addMonths(currentDate, 3));
+        setCurrentDate(addMonths(currentDate, 1));
         break;
     }
   };
@@ -174,13 +174,13 @@ export function JiraTimeline() {
   const handlePrevious = () => {
     switch (period) {
       case "days":
-        setCurrentDate(addDays(currentDate, -7));
+        setCurrentDate(addDays(currentDate, -3));
         break;
       case "weeks":
         setCurrentDate(addWeeks(currentDate, -1));
         break;
       case "months":
-        setCurrentDate(addMonths(currentDate, -3));
+        setCurrentDate(addMonths(currentDate, -1));
         break;
     }
   };

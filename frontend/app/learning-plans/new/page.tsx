@@ -98,7 +98,7 @@ export default function CreateLearningPlan() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-semibold">Create Learning Plan</h1>
 
       <div className="space-y-2">
@@ -186,7 +186,9 @@ export default function CreateLearningPlan() {
           {form.isPublic ? "Visible to others" : "Private to you"}
         </span>
       </div>
+
       <SegmentManager segments={segments} setSegments={setSegments} />
+
       <Button onClick={handleSubmit}>Submit</Button>
       <Toaster richColors />
     </div>

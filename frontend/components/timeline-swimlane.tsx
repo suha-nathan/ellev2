@@ -44,6 +44,7 @@ export function TimelineSwimlane({
     }
   };
 
+  //function calculates the grid position within the calendar given item start and end date
   const getItemStyle = (start: Date, end: Date) => {
     const itemStart = new Date(start);
     const itemEnd = new Date(end);
