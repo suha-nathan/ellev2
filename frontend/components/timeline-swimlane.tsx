@@ -1,6 +1,10 @@
 import { ChevronDown, ChevronRight, User } from "lucide-react";
 import { useState } from "react";
-import { differenceInCalendarDays } from "date-fns";
+import {
+  differenceInCalendarDays,
+  differenceInCalendarWeeks,
+  differenceInCalendarMonths,
+} from "date-fns";
 
 import type { Swimlane, TimelinePeriod } from "./jira-timeline";
 import { cn } from "@/lib/utils";
@@ -15,14 +19,12 @@ import {
 interface TimelineSwimlaneProps {
   swimlane: Swimlane;
   timeUnits: Date[];
-  getItemStyle: (start: Date, end: Date) => { left: string; width: string };
   period: TimelinePeriod;
 }
 
 export function TimelineSwimlane({
   swimlane,
   timeUnits,
-  getItemStyle,
   period,
 }: TimelineSwimlaneProps) {
   const [expanded, setExpanded] = useState(true);
@@ -42,39 +44,45 @@ export function TimelineSwimlane({
     }
   };
 
-  console.log("time units: ", timeUnits);
-
-  const getItemStyle2 = (start: Date, end: Date) => {
-    //TODO: return style by period (not just days)
-    let style = {};
-
+  const getItemStyle = (start: Date, end: Date) => {
     const itemStart = new Date(start);
     const itemEnd = new Date(end);
     const viewStart = timeUnits[0];
     const viewEnd = timeUnits[timeUnits.length - 1];
 
+    // item is completely out of bounds of the calendar
     if (itemEnd < viewStart || itemStart > viewEnd) {
-      //item out of grid bounds
-      style = { display: "none" };
-    } else {
-      //start of item is out of left bounds
-      //end of item is within, is equal to or out of right bounds
-      const left = Math.max(
-        1,
-        differenceInCalendarDays(itemStart, viewStart) + 1
-      );
-      const right = Math.min(
-        timeUnits.length + 1,
-        differenceInCalendarDays(itemEnd, viewStart) + 2
-      );
-      style = {
-        // display: "grid",
-        gridColumnStart: `${left}`,
-        gridColumnEnd: `${right}`,
-      };
+      return { display: "none" };
     }
 
-    return style;
+    const getDifference = () => {
+      switch (period) {
+        case "days":
+          return differenceInCalendarDays;
+        case "weeks":
+          return differenceInCalendarWeeks;
+        case "months":
+          return differenceInCalendarMonths;
+        default:
+          throw new Error(`Unsupported period: ${period}`);
+      }
+    };
+
+    const diffFn = getDifference();
+
+    //left is either out of bounds (1) or is at a date greater than the start of the calendar and within bounds
+    const left = Math.max(1, diffFn(itemStart, viewStart) + 1);
+
+    //right is either out of bounds (14+1 for days, 8+1 for weeks, etc) or at a date less than the end of the calendar and within bounds
+    const right = Math.min(
+      timeUnits.length + 1,
+      diffFn(itemEnd, viewStart) + 2
+    );
+
+    return {
+      display: "grid",
+      gridColumn: `${left} / ${right}`,
+    };
   };
 
   return (
@@ -95,7 +103,7 @@ export function TimelineSwimlane({
         <div
           className="flex-1 grid"
           style={{
-            gridTemplateColumns: `repeat(${timeUnits.length}, minmax(60px, 1fr))`,
+            gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)`,
           }}
         >
           {/* Grid lines */}
@@ -109,7 +117,7 @@ export function TimelineSwimlane({
       {expanded && (
         <div>
           {swimlane.items.map((item) => {
-            const style = getItemStyle2(item.start, item.end);
+            const style = getItemStyle(item.start, item.end);
 
             return (
               <div
@@ -128,7 +136,7 @@ export function TimelineSwimlane({
                 <div
                   className="flex-1 grid relative"
                   style={{
-                    gridTemplateColumns: `repeat(${timeUnits.length}, minmax(60px, 1fr))`,
+                    gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)`,
                   }}
                 >
                   {/* Grid lines */}
@@ -148,11 +156,11 @@ export function TimelineSwimlane({
                           }}
                         >
                           <div className="truncate">{item.title}</div>
-                          {item.assignee && (
+                          {/* {item.assignee && (
                             <div className="ml-auto flex items-center bg-white bg-opacity-20 rounded-full p-0.5">
                               <User className="h-3 w-3" />
                             </div>
-                          )}
+                          )} */}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
