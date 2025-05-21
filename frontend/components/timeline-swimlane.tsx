@@ -1,21 +1,21 @@
-// import { ChevronDown, ChevronRight, User } from "lucide-react";
-import { User } from "lucide-react";
-// import { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import {
   differenceInCalendarDays,
   differenceInCalendarWeeks,
   differenceInCalendarMonths,
 } from "date-fns";
-
-import type { TimelinePeriod } from "./jira-timeline";
-// import { cn } from "@/lib/utils";
-// import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import type { TimelinePeriod } from "./jira-timeline";
 
 type Task = {
   title: string;
@@ -26,7 +26,7 @@ type Task = {
 
 interface Segment {
   title: string;
-  description?: string | undefined;
+  description?: string;
   start?: Date;
   end?: Date;
   tasks?: Task[];
@@ -43,36 +43,32 @@ export function TimelineSwimlane({
   timeUnits,
   period,
 }: TimelineSwimlaneProps) {
-  // const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
-  // const getStatusBadgeColor = (status: string) => {
-  //   switch (status) {
-  //     case "todo":
-  //       return "bg-gray-200 text-gray-800";
-  //     case "in-progress":
-  //       return "bg-blue-200 text-blue-800";
-  //     case "review":
-  //       return "bg-yellow-200 text-yellow-800";
-  //     case "done":
-  //       return "bg-green-200 text-green-800";
-  //     default:
-  //       return "bg-gray-200 text-gray-800";
-  //   }
-  // };
+  const getPriorityColorClasses = (priority: string | undefined) => {
+    switch (priority) {
+      case "high":
+        return "bg-red-200 text-red-800";
+      case "medium":
+        return "bg-orange-200 text-orange-800";
+      case "low":
+        return "bg-green-200 text-green-800";
+      default:
+        return "bg-gray-200 text-gray-800";
+    }
+  };
 
-  //function calculates the grid position within the calendar given item start and end date
-  const getItemStyle = (start: Date, end: Date) => {
+  const getGridStyle = (start: Date, end: Date) => {
     const itemStart = new Date(start);
     const itemEnd = new Date(end);
     const viewStart = timeUnits[0];
     const viewEnd = timeUnits[timeUnits.length - 1];
 
-    // item is completely out of bounds of the calendar
     if (itemEnd < viewStart || itemStart > viewEnd) {
       return { display: "none" };
     }
 
-    const getDifference = () => {
+    const getDiffFn = () => {
       switch (period) {
         case "days":
           return differenceInCalendarDays;
@@ -81,16 +77,12 @@ export function TimelineSwimlane({
         case "months":
           return differenceInCalendarMonths;
         default:
-          throw new Error(`Unsupported period: ${period}`);
+          throw new Error("Unsupported period");
       }
     };
 
-    const diffFn = getDifference();
-
-    //left is either out of bounds (1) or is at a date greater than the start of the calendar and within bounds
+    const diffFn = getDiffFn();
     const left = Math.max(1, diffFn(itemStart, viewStart) + 1);
-
-    //right is either out of bounds (14+1 for days, 8+1 for weeks, etc) or at a date less than the end of the calendar and within bounds
     const right = Math.min(
       timeUnits.length + 1,
       diffFn(itemEnd, viewStart) + 2
@@ -102,73 +94,94 @@ export function TimelineSwimlane({
     };
   };
 
-  const style =
-    lane.start && lane.end ? getItemStyle(lane.start, lane.end) : "";
-
   return (
     <div className="border-b">
-      {/* Swimlane items */}
-
-      <div>
-        <div className="flex relative border-b last:border-b-0">
-          <div className="w-48 min-w-48 p-3 border-r flex items-center gap-2">
-            <div className="text-sm truncate flex-1">{lane.title}</div>
-            {/* <Badge
-                  variant="outline"
-                  className={cn("text-xs", getStatusBadgeColor(lane.status))}
-                >
-                  {item.status}
-                </Badge> */}
-          </div>
-          <div
-            className="flex-1 grid relative"
-            style={{
-              gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)`,
-            }}
-          >
-            {/* Grid lines */}
-            {/* {timeUnits.map((unit, index) => (
-                    <div key={index} className="border-r h-full"></div>
-                  ))} */}
-
-            {/* Timeline item */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    className="top-1 bottom-1 rounded-md flex items-center px-2 text-white text-xs font-medium cursor-pointer hover:opacity-90"
-                    style={{
-                      ...style,
-                      // backgroundColor: lane.color || "#60a5fa",
-                      backgroundColor: "#60a5fa",
-                    }}
-                  >
-                    <div className="truncate">{lane.title}</div>
-                    {/* {item.assignee && (
-                            <div className="ml-auto flex items-center bg-white bg-opacity-20 rounded-full p-0.5">
-                              <User className="h-3 w-3" />
-                            </div>
-                          )} */}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="space-y-1">
-                    <div className="font-medium">{lane.title}</div>
-                    <div className="text-xs">
-                      {lane.start?.toLocaleDateString()} -{" "}
-                      {lane.end?.toLocaleDateString()}
-                    </div>
-                    <div className="text-xs flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {/* {item.assignee} */}
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+      {/* Swimlane header */}
+      <div
+        className="flex items-center bg-gray-50 p-3 cursor-pointer hover:bg-gray-100"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="w-48 min-w-48 flex items-center gap-2 font-medium">
+          {expanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+          {lane.title}
+        </div>
+        <div
+          className="flex-1 grid"
+          style={{ gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)` }}
+        >
+          {/* Timeline bar for the segment */}
+          {lane.start && lane.end && (
+            <div
+              className="relative top-1 bottom-1 rounded-md px-2 text-white text-xs font-medium bg-primary"
+              style={{
+                ...getGridStyle(lane.start, lane.end),
+              }}
+            >
+              {lane.title}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Tasks inside the segment */}
+      {expanded && lane.tasks && lane.tasks.length > 0 && (
+        <div>
+          {lane.tasks.map((task, idx) => {
+            const taskStart = lane.start ?? new Date();
+            const taskEnd = lane.end ?? new Date();
+            return (
+              <div key={idx} className="flex relative border-b last:border-b-0">
+                <div className="w-48 min-w-48 px-3 py-2 text-sm text-muted-foreground">
+                  • {task.title}
+                </div>
+                <div
+                  className="flex-1 grid relative"
+                  style={{
+                    gridTemplateColumns: `repeat(${timeUnits.length}, 1fr)`,
+                  }}
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          className={cn(
+                            "absolute top-1 bottom-1 rounded bg-muted px-2 text-xs text-muted-foreground",
+                            getPriorityColorClasses(task.priority)
+                          )}
+                          style={{
+                            ...getGridStyle(taskStart, taskEnd),
+                          }}
+                        >
+                          {task.title}
+                          {task.priority && (
+                            <Badge
+                              variant="secondary"
+                              className="ml-2 capitalize"
+                            >
+                              {task.priority}
+                            </Badge>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="text-xs space-y-1">
+                          <div className="font-medium">{task.title}</div>
+                          <div>{task.type}</div>
+                          <div className="capitalize">{task.priority}</div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

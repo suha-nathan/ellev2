@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { JiraTimeline } from "@/components/jira-timeline";
 
 type Task = {
   _id: string;
@@ -106,44 +107,17 @@ export default function LearningPlanPage() {
       </div>
 
       {/* Timeline */}
-      <div className="space-y-6 border-l-2 border-muted pl-4 relative">
-        {plan.segments.map((segment) => (
-          <div key={segment._id} className="relative pl-3">
-            <div className="absolute -left-[14px] top-1.5 w-3 h-3 bg-primary rounded-full shadow" />
-            <h2 className="text-lg font-semibold">{segment.title}</h2>
-            {segment.start && segment.end && (
-              <p className="text-sm text-muted-foreground">
-                {format(new Date(segment.start), "MMM d")} →{" "}
-                {format(new Date(segment.end), "MMM d")}
-              </p>
-            )}
-            {segment.description && (
-              <p className="text-sm mt-1 text-muted-foreground">
-                {segment.description}
-              </p>
-            )}
-            {segment.tasks && segment.tasks.length > 0 && (
-              <ul className="mt-2 pl-4 space-y-1 list-disc text-sm">
-                {segment.tasks.map((task) => (
-                  <li key={task._id}>
-                    <span className="font-medium">{task.title}</span>{" "}
-                    {task.type && (
-                      <span className="text-muted-foreground">
-                        ({task.type})
-                      </span>
-                    )}
-                    {task.priority && (
-                      <Badge variant="secondary" className="ml-2 capitalize">
-                        {task.priority}
-                      </Badge>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
+      <JiraTimeline
+        segments={plan.segments.map((segment) => ({
+          ...segment,
+          start: new Date(segment.start!),
+          end: segment.end ? new Date(segment.end) : new Date(segment.start!),
+          tasks: (segment.tasks || []).map((task) => ({
+            ...task,
+            priority: task.priority ?? "medium", // Fallback to a default
+          })),
+        }))}
+      />
     </div>
   );
 }

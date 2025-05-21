@@ -100,7 +100,7 @@ export function TimelineView({ period, startDate, lanes }: TimelineViewProps) {
                       isCurrentMonth && period === "months" && "bg-blue-50"
                     )}
                   >
-                    {period === "days" && format(unit, "EEE d LLL")}
+                    {period === "days" && format(unit, "EEE d")}
                     {period === "weeks" &&
                       `${format(unit, "MMM d")} - ${format(
                         addDays(unit, 6),
