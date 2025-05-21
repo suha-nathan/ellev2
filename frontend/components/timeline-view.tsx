@@ -16,21 +16,32 @@ import {
   isSameWeek,
 } from "date-fns";
 
-import { TimelineSwimlane } from "./timeline-swimlane";
-import type { Swimlane, TimelinePeriod } from "./jira-timeline";
+import { TimelineSwimlane } from "@/components/timeline-swimlane";
+import type { TimelinePeriod } from "@/components/jira-timeline";
 import { cn } from "@/lib/utils";
+
+type Task = {
+  title: string;
+  description?: string;
+  type?: string;
+  priority: "high" | "medium" | "low";
+};
+
+interface Segment {
+  title: string;
+  description?: string | undefined;
+  start?: Date;
+  end?: Date;
+  tasks?: Task[];
+}
 
 interface TimelineViewProps {
   period: TimelinePeriod;
   startDate: Date;
-  swimlanes: Swimlane[];
+  lanes: Segment[];
 }
 
-export function TimelineView({
-  period,
-  startDate,
-  swimlanes,
-}: TimelineViewProps) {
+export function TimelineView({ period, startDate, lanes }: TimelineViewProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Calculate the number of time units to display based on period
@@ -58,7 +69,7 @@ export function TimelineView({
   const today = new Date();
 
   // console.log("timeUnits: ", timeUnits);
-
+  console.log("LANES: ", lanes);
   return (
     <div className="overflow-x-auto" ref={scrollContainerRef}>
       <div className="overflow-x-auto">
@@ -104,14 +115,15 @@ export function TimelineView({
 
           {/* Swimlanes */}
           <div>
-            {swimlanes.map((swimlane) => (
-              <TimelineSwimlane
-                key={swimlane.id}
-                swimlane={swimlane}
-                timeUnits={timeUnits}
-                period={period}
-              />
-            ))}
+            {lanes.length > 0 &&
+              lanes.map((lane, idx) => (
+                <TimelineSwimlane
+                  key={`${lane.title}-${idx}`}
+                  lane={lane}
+                  timeUnits={timeUnits}
+                  period={period}
+                />
+              ))}
           </div>
         </div>
       </div>

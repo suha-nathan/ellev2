@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DateRangePicker } from "@/components/daterange-picker";
 import { TaskManager } from "@/components/task-manager";
-import { JiraTimeline } from "./jira-timeline";
 import { Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -115,7 +114,6 @@ export function SegmentManager({ segments, setSegments }: SegmentManagerProps) {
 
   return (
     <>
-      <JiraTimeline />
       <div className="grid md:grid-cols-2 gap-6">
         {/* Left column: segment list */}
         <div className="space-y-4">

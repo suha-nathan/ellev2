@@ -15,136 +15,25 @@ import { TimelineView } from "./timeline-view";
 
 export type TimelinePeriod = "days" | "weeks" | "months";
 
-export type TimelineItem = {
-  id: string;
+type Task = {
   title: string;
   description?: string;
-  start: Date;
-  end: Date;
-  color?: string;
-  status: "todo" | "in-progress" | "review" | "done";
-  assignee?: string;
+  type?: string;
+  priority: "high" | "medium" | "low";
 };
 
-export type Swimlane = {
-  id: string;
+interface Segment {
   title: string;
-  items: TimelineItem[];
-};
+  description?: string | undefined;
+  start?: Date;
+  end?: Date;
+  tasks?: Task[];
+}
 
-// Sample data
-const sampleData: Swimlane[] = [
-  {
-    id: "epic-1",
-    title: "User Authentication",
-    items: [
-      {
-        id: "task-1",
-        title: "Design login screen",
-        start: new Date(2025, 3, 5),
-        end: new Date(2025, 3, 10),
-        status: "done",
-        color: "#4ade80",
-        assignee: "Alex",
-      },
-      {
-        id: "task-2",
-        title: "Implement OAuth flow",
-        start: new Date(2025, 3, 8),
-        end: new Date(2025, 3, 15),
-        status: "in-progress",
-        color: "#60a5fa",
-        assignee: "Taylor",
-      },
-      {
-        id: "task-3",
-        title: "User profile management",
-        start: new Date(2025, 3, 12),
-        end: new Date(2025, 3, 22),
-        status: "todo",
-        color: "#f87171",
-        assignee: "Jordan",
-      },
-    ],
-  },
-  {
-    id: "epic-2",
-    title: "Payment Processing",
-    items: [
-      {
-        id: "task-4",
-        title: "Payment gateway integration",
-        start: new Date(2025, 3, 10),
-        end: new Date(2025, 3, 20),
-        status: "in-progress",
-        color: "#60a5fa",
-        assignee: "Morgan",
-      },
-      {
-        id: "task-5",
-        title: "Subscription management",
-        start: new Date(2025, 3, 18),
-        end: new Date(2025, 3, 28),
-        status: "todo",
-        color: "#f87171",
-        assignee: "Casey",
-      },
-    ],
-  },
-  {
-    id: "epic-3",
-    title: "Data Analytics",
-    items: [
-      {
-        id: "task-6",
-        title: "Dashboard design",
-        start: new Date(2025, 3, 5),
-        end: new Date(2025, 3, 12),
-        status: "review",
-        color: "#fbbf24",
-        assignee: "Riley",
-      },
-      {
-        id: "task-7",
-        title: "Data visualization components",
-        start: new Date(2025, 3, 12),
-        end: new Date(2025, 3, 25),
-        status: "in-progress",
-        color: "#60a5fa",
-        assignee: "Quinn",
-      },
-    ],
-  },
-  {
-    id: "epic-4",
-    title: "Mobile App",
-    items: [
-      {
-        id: "task-8",
-        title: "UI/UX design",
-        start: new Date(2025, 3, 15),
-        end: new Date(2025, 3, 25),
-        status: "todo",
-        color: "#f87171",
-        assignee: "Jamie",
-      },
-      {
-        id: "task-9",
-        title: "React Native implementation",
-        start: new Date(2025, 3, 22),
-        end: new Date(2025, 4, 10),
-        status: "todo",
-        color: "#f87171",
-        assignee: "Drew",
-      },
-    ],
-  },
-];
-
-export function JiraTimeline() {
+export function JiraTimeline({ segments }: { segments: Segment[] }) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [period, setPeriod] = useState<TimelinePeriod>("weeks");
-  const [swimlanes] = useState<Swimlane[]>(sampleData);
+  // const [lanes] = useState<Segment[]>(segments);
 
   const getStartDate = () => {
     switch (period) {
@@ -225,7 +114,7 @@ export function JiraTimeline() {
       <TimelineView
         period={period}
         startDate={getStartDate()}
-        swimlanes={swimlanes}
+        lanes={segments}
       />
     </div>
   );
