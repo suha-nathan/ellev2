@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import type { TimelinePeriod } from "./jira-timeline";
+import type { TimelinePeriod } from "./timeline";
 
 type Task = {
   title: string;

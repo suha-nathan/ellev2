@@ -21,7 +21,7 @@ import { PlusIcon, X } from "lucide-react";
 import { Toaster, toast } from "sonner";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/daterange-picker";
-import { JiraTimeline } from "@/components/jira-timeline";
+import { Timeline } from "@/components/timeline";
 import { SegmentManager } from "@/components/segment-manager";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
 
@@ -202,7 +202,7 @@ export default function CreateLearningPlan() {
           {form.isPublic ? "Visible to others" : "Private to you"}
         </span>
       </div>
-      <JiraTimeline segments={segments} />
+      <Timeline segments={segments} />
       <SegmentManager segments={segments} setSegments={setSegments} />
 
       <Button onClick={handleSubmit}>Submit</Button>

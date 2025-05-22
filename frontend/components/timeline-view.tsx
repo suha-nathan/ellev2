@@ -17,7 +17,7 @@ import {
 } from "date-fns";
 
 import { TimelineSwimlane } from "@/components/timeline-swimlane";
-import type { TimelinePeriod } from "@/components/jira-timeline";
+import type { TimelinePeriod } from "@/components/timeline";
 import { cn } from "@/lib/utils";
 
 type Task = {

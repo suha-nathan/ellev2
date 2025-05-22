@@ -30,7 +30,7 @@ interface Segment {
   tasks?: Task[];
 }
 
-export function JiraTimeline({ segments }: { segments: Segment[] }) {
+export function Timeline({ segments }: { segments: Segment[] }) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [period, setPeriod] = useState<TimelinePeriod>("weeks");
   // const [lanes] = useState<Segment[]>(segments);

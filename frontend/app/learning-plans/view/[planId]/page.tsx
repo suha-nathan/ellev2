@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { JiraTimeline } from "@/components/jira-timeline";
+import { Timeline } from "@/components/timeline";
 
 type Task = {
   _id: string;
@@ -107,14 +107,14 @@ export default function LearningPlanPage() {
       </div>
 
       {/* Timeline */}
-      <JiraTimeline
+      <Timeline
         segments={plan.segments.map((segment) => ({
           ...segment,
           start: new Date(segment.start!),
           end: segment.end ? new Date(segment.end) : new Date(segment.start!),
           tasks: (segment.tasks || []).map((task) => ({
             ...task,
-            priority: task.priority ?? "medium", // Fallback to a default
+            priority: task.priority ?? "medium",
           })),
         }))}
       />

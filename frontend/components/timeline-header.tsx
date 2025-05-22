@@ -1,19 +1,26 @@
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import type { TimelinePeriod } from "./jira-timeline"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { TimelinePeriod } from "./timeline";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TimelineHeaderProps {
-  title: string
-  period: TimelinePeriod
-  onPeriodChange: (period: TimelinePeriod) => void
-  onNext: () => void
-  onPrevious: () => void
-  onToday: () => void
+  title: string;
+  period: TimelinePeriod;
+  onPeriodChange: (period: TimelinePeriod) => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  onToday: () => void;
 }
 
-export function TimelineHeader({ title, period, onPeriodChange, onNext, onPrevious, onToday }: TimelineHeaderProps) {
+export function TimelineHeader({
+  title,
+  period,
+  onPeriodChange,
+  onNext,
+  onPrevious,
+  onToday,
+}: TimelineHeaderProps) {
   return (
     <div className="p-4 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div className="flex items-center gap-2">
@@ -30,7 +37,10 @@ export function TimelineHeader({ title, period, onPeriodChange, onNext, onPrevio
         </Button>
         <h2 className="text-lg font-medium ml-2">{title}</h2>
       </div>
-      <Tabs value={period} onValueChange={(value) => onPeriodChange(value as TimelinePeriod)}>
+      <Tabs
+        value={period}
+        onValueChange={(value) => onPeriodChange(value as TimelinePeriod)}
+      >
         <TabsList>
           <TabsTrigger value="days">Days</TabsTrigger>
           <TabsTrigger value="weeks">Weeks</TabsTrigger>
@@ -38,5 +48,5 @@ export function TimelineHeader({ title, period, onPeriodChange, onNext, onPrevio
         </TabsList>
       </Tabs>
     </div>
-  )
+  );
 }
