@@ -3,10 +3,14 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 
 export type Resource = {
   _id: string;
@@ -34,9 +38,8 @@ export function ResourceSelector({ selected, onSelect }: Props) {
       if (debounced) params.set("q", debounced);
       const res = await fetch(`/api/resources?${params.toString()}`);
       const data = await res.json();
-      setResults(data.slice(0, 5)); // condensed result
+      setResults(data.slice(0, 10));
     };
-
     fetchResources();
   }, [debounced]);
 
@@ -51,53 +54,57 @@ export function ResourceSelector({ selected, onSelect }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      <Input
-        placeholder="Search resources..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+    <TooltipProvider>
+      <div className="space-y-4">
+        <Input
+          placeholder="Search resources..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-      <div className=" grid md:grid-cols-2 space-y-2">
-        {results.map((resource) => (
-          <Card
-            key={resource._id}
-            className="p-2 cursor-pointer hover:bg-muted"
-            onClick={() => handleAdd(resource)}
-          >
-            <p className="font-medium text-sm truncate">{resource.title}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {resource.description}
-            </p>
-            <div className="flex gap-1 mt-1 flex-wrap">
-              {resource.tags?.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </Card>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {results.map((resource) => (
+            <Tooltip key={resource._id}>
+              <TooltipTrigger asChild>
+                <Card
+                  className="p-2 cursor-pointer hover:bg-muted transition text-sm"
+                  onClick={() => handleAdd(resource)}
+                >
+                  <div className="font-medium truncate">{resource.title}</div>
+                </Card>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-sm text-xs space-y-1">
+                <p className="font-medium">{resource.title}</p>
+                {resource.description && (
+                  <p className="line-clamp-5 text-primary-foreground">
+                    {resource.description}
+                  </p>
+                )}
+                <p className="">
+                  Source: {resource.source}, Type: {resource.contentType}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
 
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm">Selected Resources</h4>
-        {selected.map((resource) => (
-          <Card
-            key={resource._id}
-            className="flex items-center justify-between px-2 py-1"
-          >
-            <p className="truncate text-sm">{resource.title}</p>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => handleRemove(resource._id)}
-            >
-              <X className="w-4 h-4 text-destructive" />
-            </Button>
-          </Card>
-        ))}
+        <div className="space-y-2">
+          <h4 className="font-medium text-sm">Selected Resources</h4>
+          <div className="flex flex-wrap gap-2">
+            {selected.map((resource) => (
+              <div
+                key={resource._id}
+                className="bg-muted px-2 py-1 rounded flex items-center gap-1 max-w-xs truncate text-xs"
+              >
+                <span className="truncate">{resource.title}</span>
+                <button onClick={() => handleRemove(resource._id)}>
+                  <X className="w-3 h-3 text-destructive" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

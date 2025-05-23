@@ -212,7 +212,7 @@ export default function CreateLearningPlan() {
           </div>
         </div>
 
-        <div>
+        <div className="space-y-2">
           <Label>Attach Resources</Label>
           <ResourceSelector
             selected={selectedResources}

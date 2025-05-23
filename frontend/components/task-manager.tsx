@@ -183,7 +183,7 @@ export function TaskManager({ tasks, setTasks }: TaskManagerProps) {
             type="single"
             value={selectedTask.priority}
             onValueChange={(val) => handleChange("priority", val || "medium")}
-            className="flex gap-2"
+            className="gap-2"
           >
             <ToggleGroupItem value="high" aria-label="High priority">
               High
