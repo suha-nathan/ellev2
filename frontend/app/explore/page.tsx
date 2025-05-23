@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectTrigger,
+//   SelectContent,
+//   SelectItem,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -28,7 +29,7 @@ export default function Explore() {
   const [source, setSource] = useState("");
   const [contentType, setContentType] = useState("");
 
-  const debouncedSearch = useDebounce(search, 400);
+  const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -54,7 +55,7 @@ export default function Explore() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Select onValueChange={setSource}>
+        {/* <Select onValueChange={setSource}>
           <SelectTrigger>
             <SelectValue placeholder="Filter by source" />
           </SelectTrigger>
@@ -62,8 +63,18 @@ export default function Explore() {
             <SelectItem value="Coursera">Coursera</SelectItem>
             <SelectItem value="Google Books">Google Books</SelectItem>
           </SelectContent>
-        </Select>
-        <Select onValueChange={setContentType}>
+        </Select> */}
+        <ToggleGroup
+          type="single"
+          value={source}
+          onValueChange={(val) => setSource(val === source ? "" : val)} // allow deselect
+          className="gap-2"
+        >
+          <ToggleGroupItem value="Coursera">Coursera</ToggleGroupItem>
+          <ToggleGroupItem value="Google Books">Google Books</ToggleGroupItem>
+          <ToggleGroupItem value="edX">edX</ToggleGroupItem>
+        </ToggleGroup>
+        {/* <Select onValueChange={setContentType}>
           <SelectTrigger>
             <SelectValue placeholder="Filter by content type" />
           </SelectTrigger>
@@ -71,7 +82,7 @@ export default function Explore() {
             <SelectItem value="course">Course</SelectItem>
             <SelectItem value="book">Book</SelectItem>
           </SelectContent>
-        </Select>
+        </Select> */}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

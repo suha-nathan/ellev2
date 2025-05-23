@@ -24,6 +24,7 @@ import { DateRangePicker } from "@/components/daterange-picker";
 import { Timeline } from "@/components/timeline";
 import { SegmentManager } from "@/components/segment-manager";
 import { learningPlanSchema } from "@/lib/validation/learningPlanSchema";
+import { ResourceSelector, Resource } from "@/components/resource-selector";
 
 type Task = {
   title: string;
@@ -59,6 +60,9 @@ export default function CreateLearningPlan() {
     from: form.start,
     to: form.end,
   });
+
+  const [selectedResources, setSelectedResources] = useState<Resource[]>([]);
+
   const router = useRouter();
 
   const handleTagAdd = () => {
@@ -85,6 +89,7 @@ export default function CreateLearningPlan() {
     const finalPlan = {
       ...form,
       category: { name: form.category },
+      resources: selectedResources.map((r) => r._id),
       segments,
     };
 
@@ -116,92 +121,106 @@ export default function CreateLearningPlan() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <h1 className="text-2xl font-semibold">Create Learning Plan</h1>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Title</Label>
+            <Input
+              value={form.title}
+              onChange={(e) => updateForm("title", e.target.value)}
+            />
+            {errors.title && (
+              <p className="text-sm text-red-600">
+                {errors.title._errors?.[0]}
+              </p>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label>Title</Label>
-        <Input
-          value={form.title}
-          onChange={(e) => updateForm("title", e.target.value)}
-        />
-        {errors.title && (
-          <p className="text-sm text-red-600">{errors.title._errors?.[0]}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label>Description</Label>
-        <Textarea
-          value={form.description}
-          onChange={(e) => updateForm("description", e.target.value)}
-        />
-      </div>
-      <div className="space-y-2">
-        <Label>Category</Label>
-        <Select
-          defaultValue=""
-          onValueChange={(e) => updateForm("category", e)}
-        >
-          <SelectTrigger className="border rounded px-2 py-1">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Category</SelectLabel>
-              <SelectItem value="frontend">Frontend</SelectItem>
-              <SelectItem value="backend">Backend</SelectItem>
-              <SelectItem value="design">Design</SelectItem>
-              <SelectItem value="career">Career</SelectItem>
-              <SelectItem value="pineapple">Pineapple</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label>Tags</Label>
-        <div className="flex gap-2 flex-wrap">
-          {form.tags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="flex items-center gap-1"
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={form.description}
+              onChange={(e) => updateForm("description", e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select
+              defaultValue=""
+              onValueChange={(e) => updateForm("category", e)}
             >
-              {tag}
-              <X
-                className="w-3 h-3 cursor-pointer"
-                onClick={() => handleTagRemove(tag)}
+              <SelectTrigger className="border rounded px-2 py-1">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Category</SelectLabel>
+                  <SelectItem value="frontend">Frontend</SelectItem>
+                  <SelectItem value="backend">Backend</SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="career">Career</SelectItem>
+                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <div className="flex gap-2 flex-wrap">
+              {form.tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="flex items-center gap-1"
+                >
+                  {tag}
+                  <X
+                    className="w-3 h-3 cursor-pointer"
+                    onClick={() => handleTagRemove(tag)}
+                  />
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={form.tagInput}
+                onChange={(e) => setForm({ ...form, tagInput: e.target.value })}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), handleTagAdd())
+                }
               />
-            </Badge>
-          ))}
+              <Button type="button" onClick={handleTagAdd} variant="outline">
+                <PlusIcon className="w-4 h-4 mr-1" /> Add
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Date</Label>
+            <DateRangePicker range={range} setRange={setRange} numMonths={2} />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Label>Public</Label>
+            <Switch
+              checked={form.isPublic}
+              onCheckedChange={(checked) => updateForm("isPublic", !!checked)}
+            />
+            <span className="text-sm text-muted-foreground">
+              {form.isPublic ? "Visible to others" : "Private to you"}
+            </span>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Input
-            value={form.tagInput}
-            onChange={(e) => setForm({ ...form, tagInput: e.target.value })}
-            onKeyDown={(e) =>
-              e.key === "Enter" && (e.preventDefault(), handleTagAdd())
-            }
+
+        <div>
+          <Label>Attach Resources</Label>
+          <ResourceSelector
+            selected={selectedResources}
+            onSelect={setSelectedResources}
           />
-          <Button type="button" onClick={handleTagAdd} variant="outline">
-            <PlusIcon className="w-4 h-4 mr-1" /> Add
-          </Button>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Date</Label>
-        <DateRangePicker range={range} setRange={setRange} numMonths={2} />
-      </div>
-
-      <div className="flex items-center gap-4">
-        <Label>Public</Label>
-        <Switch
-          checked={form.isPublic}
-          onCheckedChange={(checked) => updateForm("isPublic", !!checked)}
-        />
-        <span className="text-sm text-muted-foreground">
-          {form.isPublic ? "Visible to others" : "Private to you"}
-        </span>
-      </div>
       <Timeline segments={segments} />
       <SegmentManager segments={segments} setSegments={setSegments} />
 
